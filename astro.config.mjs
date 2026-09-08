@@ -4,6 +4,7 @@ import react from '@astrojs/react';
 import AstroPWA from '@vite-pwa/astro';
 
 export default defineConfig({
+  base: './',
   fonts: [
     {
       cssVariable: '--font-inter',
@@ -40,22 +41,22 @@ export default defineConfig({
         icons: [
           ...[72, 128, 144, 152, 192, 256, 512].map(size => ({
             sizes: `${size}x${size}`,
-            src: `/assets/pwa/${size}.png`,
+            src: `./assets/pwa/${size}.png`,
             type: 'image/png',
           })),
         ],
         name: 'Moodist',
         orientation: 'any',
-        scope: '/',
+        scope: '.',
         short_name: 'Moodist',
-        start_url: '/',
+        start_url: '.',
         theme_color: '#09090b',
       },
       registerType: 'prompt',
       workbox: {
         globPatterns: ['**/*'],
         maximumFileSizeToCacheInBytes: Number.MAX_SAFE_INTEGER,
-        navigateFallback: '/',
+        navigateFallback: './',
       },
     }),
   ],

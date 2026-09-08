@@ -58,6 +58,16 @@ Then open:
 http://localhost:8080
 ```
 
+## Home Assistant
+
+Moodist is also packaged as a Home Assistant add-on. Add this repository to the
+Home Assistant add-on store, install Moodist, and use **Audio output** in the
+Moodist menu to select the browser, speakers, or speaker groups.
+
+Speaker playback uses port `8099`. See the
+[add-on documentation](moodist/DOCS.md) if your speakers cannot reach the
+default stream URL.
+
 ## Contributing
 
 Please check [CONTRIBUTING.md](CONTRIBUTING.md) file.

@@ -3,18 +3,20 @@ version: 3.0.0
 slug: moodist
 description: Layer ambient sounds and play them in your browser or on Home Assistant speakers.
 url: https://github.com/jpinz/moodist
-image: ghcr.io/jpinz/moodist/{arch}
+image: ghcr.io/jpinz/moodist
 arch:
   - aarch64
   - amd64
-  - armhf
-  - armv7
-  - i386
 init: false
 ingress: true
 ingress_port: 8080
+panel_admin: false
 panel_icon: mdi:forest
+panel_title: Moodist
 homeassistant_api: true
+startup: application
+stage: stable
+watchdog: http://[HOST]:[PORT:8080]/health
 ports:
   8099/tcp: 8099
 ports_description:

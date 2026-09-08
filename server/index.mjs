@@ -76,7 +76,7 @@ async function getTargets() {
     .filter(state => state.entity_id.startsWith('media_player.'))
     .map(state => ({
       entityId: state.entity_id,
-      kind: 'device',
+      kind: Array.isArray(state.attributes.group_members) ? 'group' : 'device',
       name: state.attributes.friendly_name ?? state.entity_id,
     }));
   const groups = states
@@ -335,6 +335,10 @@ function ingressHandler(request, response) {
 
   Promise.resolve()
     .then(async () => {
+      if (request.method === 'GET' && url.pathname === '/health') {
+        return json(response, 200, { status: 'ok' });
+      }
+
       if (request.method === 'GET' && url.pathname === '/api/outputs') {
         const targets = await getTargets();
         return json(response, 200, { available: true, targets });
