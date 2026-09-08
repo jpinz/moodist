@@ -22,6 +22,7 @@ import {
   BinauralItem,
   IsochronicItem,
   LofiItem,
+  OutputItem,
 } from './items';
 import { Divider } from './divider';
 import { ShareLinkModal } from '@/components/modals/share-link';
@@ -33,6 +34,7 @@ import { BreathingExerciseModal } from '@/components/modals/breathing';
 import { BinauralModal } from '@/components/modals/binaural';
 import { IsochronicModal } from '@/components/modals/isochronic';
 import { LofiModal } from '@/components/modals/lofi';
+import { OutputModal } from '@/components/modals/output';
 import { Pomodoro, Notepad, Todo, Countdown } from '@/components/toolbox';
 
 import { fade, mix, slideY } from '@/lib/motion';
@@ -55,6 +57,7 @@ export function Menu() {
       isochronic: false,
       lofi: false,
       notepad: false,
+      output: false,
       pomodoro: false,
       presets: false,
       settings: false,
@@ -150,6 +153,7 @@ export function Menu() {
 
                     <Divider />
                     <SettingsItem open={() => open('settings')} />
+                    <OutputItem open={() => open('output')} />
                     <ThemeItem />
                     <Divider />
                     <ShortcutsItem open={() => open('shortcuts')} />
@@ -177,6 +181,7 @@ export function Menu() {
         onClose={() => close('shortcuts')}
       />
       <SettingsModal show={modals.settings} onClose={() => close('settings')} />
+      <OutputModal show={modals.output} onClose={() => close('output')} />
       <Pomodoro
         open={() => open('pomodoro')}
         show={modals.pomodoro}

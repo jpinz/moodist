@@ -1,0 +1,40 @@
+.list {
+  display: grid;
+  gap: 8px;
+}
+
+.heading {
+  margin: 14px 0 4px;
+  font-size: var(--font-xsm);
+  font-weight: 500;
+  color: var(--color-foreground-subtle);
+}
+
+.option {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 12px;
+  cursor: pointer;
+  background-color: var(--color-surface-hover);
+}
+
+.option span {
+  display: grid;
+  gap: 3px;
+}
+
+.option strong {
+  font-size: var(--font-sm);
+  font-weight: 500;
+}
+
+.option small,
+.message {
+  font-size: var(--font-xsm);
+  color: var(--color-foreground-subtle);
+}
+
+.message {
+  margin-top: 16px;
+}

@@ -55,7 +55,7 @@ async function supervisor(path, options = {}) {
   const response = await fetch(`${SUPERVISOR_URL}${path}`, {
     ...options,
     headers: {
-      Authorization: `******
+      Authorization: ['Bearer', SUPERVISOR_TOKEN].join(' '),
       'Content-Type': 'application/json',
       ...options.headers,
     },
@@ -243,6 +243,7 @@ async function updateSession(request, response, id) {
   const body = await readJson(request);
   const session = getSession(id);
   const previousOutputs = session.outputs;
+  const wasPlaying = session.playing;
   const nextOutputs = Array.isArray(body.outputs)
     ? [...new Set(body.outputs.filter(value => typeof value === 'string'))]
     : [];
@@ -267,7 +268,11 @@ async function updateSession(request, response, id) {
     await callMediaService('media_stop', nextOutputs);
   } else {
     startMixer(session);
-    await callMediaService('play_media', nextOutputs, {
+    const added = nextOutputs.filter(
+      entityId => !previousOutputs.includes(entityId),
+    );
+    const outputsToStart = wasPlaying ? added : nextOutputs;
+    await callMediaService('play_media', outputsToStart, {
       media_content_id: session.streamUrl,
       media_content_type: 'music',
     });

@@ -8,6 +8,7 @@ import { useSound } from '@/hooks/use-sound';
 import { useSoundStore } from '@/stores/sound';
 import { useSettingsStore } from '@/stores/settings';
 import { useLoadingStore } from '@/stores/loading';
+import { useOutputStore } from '@/stores/output';
 import { cn } from '@/helpers/styles';
 
 import styles from './sound.module.css';
@@ -34,6 +35,7 @@ export const Sound = forwardRef<HTMLDivElement, SoundProps>(function Sound(
   const setVolume = useSoundStore(state => state.setVolume);
   const isSelected = useSoundStore(state => state.sounds[id].isSelected);
   const locked = useSoundStore(state => state.locked);
+  const browserOutput = useOutputStore(state => state.browser);
 
   const volume = useSoundStore(state => state.sounds[id].volume);
   const globalVolume = useSettingsStore(state => state.globalVolume);
@@ -49,12 +51,12 @@ export const Sound = forwardRef<HTMLDivElement, SoundProps>(function Sound(
   useEffect(() => {
     if (locked) return;
 
-    if (isSelected && isPlaying && functional) {
+    if (isSelected && isPlaying && functional && browserOutput) {
       sound?.play();
     } else {
       sound?.pause();
     }
-  }, [isSelected, sound, isPlaying, functional, locked]);
+  }, [isSelected, sound, isPlaying, functional, locked, browserOutput]);
 
   useEffect(() => {
     if (hidden && isSelected) selectHidden(label);
