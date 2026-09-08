@@ -1,9 +1,8 @@
 name: Build and push main image
 
 on:
-  push:
-    tags:
-      - '*'
+  release:
+    types: [published]
 
 permissions:
   contents: read
@@ -34,8 +33,7 @@ jobs:
         run: |
           IMAGE_NAME="ghcr.io/jpinz/moodist"
 
-          GIT_TAG=${{ github.ref }}
-          GIT_TAG=${GIT_TAG#refs/tags/}
+          GIT_TAG=${{ github.event.release.tag_name }}
           GIT_TAG=${GIT_TAG#v}
 
           docker buildx build \
