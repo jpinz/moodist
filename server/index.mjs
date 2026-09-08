@@ -109,6 +109,12 @@ async function getTargets() {
   return targets;
 }
 
+function trimTrailingSlashes(value) {
+  let end = value.length;
+  while (end > 0 && value[end - 1] === '/') end -= 1;
+  return value.slice(0, end);
+}
+
 function configuredAudioUrl(request) {
   let configured = process.env.AUDIO_URL ?? '';
 
@@ -119,7 +125,7 @@ function configuredAudioUrl(request) {
     // The options file exists only when this image runs as an add-on.
   }
 
-  if (configured) return configured.replace(/\/+$/, '');
+  if (configured) return trimTrailingSlashes(configured);
 
   const forwardedHost = request.headers['x-forwarded-host'];
   const host = String(
@@ -347,9 +353,8 @@ function staticFile(request, response) {
   });
 
   if (extname(file) === '.html' && request.headers['x-ingress-path']) {
-    const ingressPath = String(request.headers['x-ingress-path']).replace(
-      /\/+$/,
-      '',
+    const ingressPath = trimTrailingSlashes(
+      String(request.headers['x-ingress-path']),
     );
     const html = readFileSync(file, 'utf8')
       .replaceAll('/./_astro/', '/_astro/')
