@@ -17,17 +17,24 @@ COPY . .
 # Build the app
 RUN pnpm run build
 
-FROM docker.io/caddy:latest
+FROM docker.io/node:24-alpine
 
 LABEL org.opencontainers.image.title="Moodist" \
       org.opencontainers.image.description="Ambient sounds for focus and calm" \
-      org.opencontainers.image.source="https://github.com/remvze/moodist" \
+      org.opencontainers.image.source="https://github.com/jpinz/moodist" \
       org.opencontainers.image.url="https://moodist.mvze.net/" \
-      org.opencontainers.image.documentation="https://github.com/remvze/moodist" \
+      org.opencontainers.image.documentation="https://github.com/jpinz/moodist" \
       org.opencontainers.image.licenses="MIT" \
       org.opencontainers.image.vendor="remvze"
 
-COPY ./Caddyfile /etc/caddy/Caddyfile
-COPY --from=build /app/dist /var/www/html
+RUN apk add --no-cache ffmpeg
 
-EXPOSE 8080
+COPY --from=build /app/dist /var/www/html
+COPY ./server /app/server
+
+ENV NODE_ENV=production \
+    STATIC_ROOT=/var/www/html
+
+EXPOSE 8080 8099
+
+CMD ["node", "/app/server/index.mjs"]

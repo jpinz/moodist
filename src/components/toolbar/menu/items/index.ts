@@ -15,3 +15,4 @@ export { Countdown as CountdownItem } from './countdown';
 export { Binaural as BinauralItem } from './binaural';
 export { Isochronic as IsochronicItem } from './isochronic';
 export { Lofi as LofiItem } from './lofi';
+export { Output as OutputItem } from './output';
