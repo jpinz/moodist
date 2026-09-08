@@ -4,12 +4,14 @@ import { extname, join, normalize, relative, resolve } from 'node:path';
 import { spawn } from 'node:child_process';
 
 const STATIC_ROOT = resolve(process.env.STATIC_ROOT ?? '/var/www/html');
+const SOUNDS_ROOT = join(STATIC_ROOT, 'sounds');
 const INGRESS_PORT = Number(process.env.PORT ?? 8080);
 const AUDIO_PORT = Number(process.env.AUDIO_PORT ?? 8099);
 const SUPERVISOR_URL = process.env.SUPERVISOR_URL ?? 'http://supervisor';
 const SUPERVISOR_TOKEN = process.env.SUPERVISOR_TOKEN;
 const SESSION_TTL = 12 * 60 * 60 * 1000;
 const sessions = new Map();
+let targetCache = { expiresAt: 0, targets: [] };
 
 const mimeTypes = {
   '.css': 'text/css; charset=utf-8',
@@ -71,12 +73,18 @@ async function supervisor(path, options = {}) {
 }
 
 async function getTargets() {
+  if (targetCache.expiresAt > Date.now()) return targetCache.targets;
+
   const states = await supervisor('/core/api/states');
   const mediaPlayers = states
     .filter(state => state.entity_id.startsWith('media_player.'))
     .map(state => ({
       entityId: state.entity_id,
-      kind: Array.isArray(state.attributes.group_members) ? 'group' : 'device',
+      kind:
+        Array.isArray(state.attributes.group_members) &&
+        state.attributes.group_members.length > 1
+          ? 'group'
+          : 'device',
       name: state.attributes.friendly_name ?? state.entity_id,
     }));
   const groups = states
@@ -94,9 +102,11 @@ async function getTargets() {
       name: state.attributes.friendly_name ?? state.entity_id,
     }));
 
-  return [...groups, ...mediaPlayers].sort((left, right) =>
+  const targets = [...groups, ...mediaPlayers].sort((left, right) =>
     left.name.localeCompare(right.name),
   );
+  targetCache = { expiresAt: Date.now() + 15_000, targets };
+  return targets;
 }
 
 function configuredAudioUrl(request) {
@@ -112,7 +122,9 @@ function configuredAudioUrl(request) {
   if (configured) return configured.replace(/\/+$/, '');
 
   const forwardedHost = request.headers['x-forwarded-host'];
-  const host = String(forwardedHost ?? request.headers.host ?? 'homeassistant.local')
+  const host = String(
+    forwardedHost ?? request.headers.host ?? 'homeassistant.local',
+  )
     .split(',')[0]
     .trim()
     .replace(/:\d+$/, '');
@@ -169,7 +181,7 @@ function soundFile(path) {
   const requested = normalize(path.slice(markerIndex + 1));
   const absolute = resolve(STATIC_ROOT, requested);
   if (
-    relative(STATIC_ROOT, absolute).startsWith('..') ||
+    relative(SOUNDS_ROOT, absolute).startsWith('..') ||
     !existsSync(absolute) ||
     !statSync(absolute).isFile()
   ) {
@@ -179,7 +191,8 @@ function soundFile(path) {
   return absolute;
 }
 
-function startMixer(session) {
+function startMixer(session, force = false) {
+  if (session.mixer && !force) return;
   stopMixer(session);
   if (!session.playing || session.clients.size === 0) return;
 
@@ -247,10 +260,14 @@ async function updateSession(request, response, id) {
   const nextOutputs = Array.isArray(body.outputs)
     ? [...new Set(body.outputs.filter(value => typeof value === 'string'))]
     : [];
-  const validTargets = new Set((await getTargets()).map(target => target.entityId));
+  const validTargets = new Set(
+    (await getTargets()).map(target => target.entityId),
+  );
 
   if (nextOutputs.some(entityId => !validTargets.has(entityId))) {
-    return json(response, 400, { error: 'An unavailable output was selected.' });
+    return json(response, 400, {
+      error: 'An unavailable output was selected.',
+    });
   }
 
   session.outputs = nextOutputs;
@@ -267,7 +284,7 @@ async function updateSession(request, response, id) {
     stopMixer(session, true);
     await callMediaService('media_stop', nextOutputs);
   } else {
-    startMixer(session);
+    startMixer(session, true);
     const added = nextOutputs.filter(
       entityId => !previousOutputs.includes(entityId),
     );
@@ -283,7 +300,7 @@ async function updateSession(request, response, id) {
 
 function stream(response, id) {
   const session = sessions.get(id);
-  if (!session || !session.playing || session.sounds.length === 0) {
+  if (!session?.playing || session.sounds.length === 0) {
     return json(response, 404, { error: 'This stream is not playing.' });
   }
 
@@ -324,9 +341,25 @@ function staticFile(request, response) {
   }
 
   response.writeHead(200, {
-    'Cache-Control': extname(file) === '.html' ? 'no-cache' : 'public, max-age=86400',
+    'Cache-Control':
+      extname(file) === '.html' ? 'no-cache' : 'public, max-age=86400',
     'Content-Type': mimeTypes[extname(file)] ?? 'application/octet-stream',
   });
+
+  if (extname(file) === '.html' && request.headers['x-ingress-path']) {
+    const ingressPath = String(request.headers['x-ingress-path']).replace(
+      /\/+$/,
+      '',
+    );
+    const html = readFileSync(file, 'utf8')
+      .replaceAll('/./_astro/', '/_astro/')
+      .replace(
+        /(href|src|component-url|renderer-url)="\/(?!\/)/g,
+        `$1="${ingressPath}/`,
+      );
+    return response.end(html);
+  }
+
   createReadStream(file).pipe(response);
 }
 
@@ -384,12 +417,15 @@ if (AUDIO_PORT !== INGRESS_PORT) {
   });
 }
 
-setInterval(() => {
-  const cutoff = Date.now() - SESSION_TTL;
-  for (const [id, session] of sessions) {
-    if (session.lastSeen < cutoff) {
-      stopMixer(session, true);
-      sessions.delete(id);
+setInterval(
+  () => {
+    const cutoff = Date.now() - SESSION_TTL;
+    for (const [id, session] of sessions) {
+      if (session.lastSeen < cutoff) {
+        stopMixer(session, true);
+        sessions.delete(id);
+      }
     }
-  }
-}, 60 * 60 * 1000).unref();
+  },
+  60 * 60 * 1000,
+).unref();

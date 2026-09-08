@@ -33,7 +33,7 @@
 docker run -d \
   --name moodist \
   -p 8080:8080 \
-  ghcr.io/remvze/moodist:latest
+  ghcr.io/jpinz/moodist:latest
 ```
 
 The open:

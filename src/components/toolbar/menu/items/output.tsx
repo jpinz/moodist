@@ -7,7 +7,5 @@ interface OutputProps {
 }
 
 export function Output({ open }: OutputProps) {
-  return (
-    <Item icon={<MdSpeakerGroup />} label="Audio output" onClick={open} />
-  );
+  return <Item icon={<MdSpeakerGroup />} label="Audio output" onClick={open} />;
 }

@@ -64,9 +64,7 @@ export function OutputModal({ onClose, show }: OutputModalProps) {
                 <label className={styles.option} key={target.entityId}>
                   <Checkbox
                     checked={checked}
-                    disabled={
-                      checked && !browser && selected.length === 1
-                    }
+                    disabled={checked && !browser && selected.length === 1}
                     onChange={() => toggleTarget(target.entityId)}
                   />
                   <span>

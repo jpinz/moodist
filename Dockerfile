@@ -21,9 +21,9 @@ FROM docker.io/node:24-alpine
 
 LABEL org.opencontainers.image.title="Moodist" \
       org.opencontainers.image.description="Ambient sounds for focus and calm" \
-      org.opencontainers.image.source="https://github.com/remvze/moodist" \
+      org.opencontainers.image.source="https://github.com/jpinz/moodist" \
       org.opencontainers.image.url="https://moodist.mvze.net/" \
-      org.opencontainers.image.documentation="https://github.com/remvze/moodist" \
+      org.opencontainers.image.documentation="https://github.com/jpinz/moodist" \
       org.opencontainers.image.licenses="MIT" \
       org.opencontainers.image.vendor="remvze"
 
