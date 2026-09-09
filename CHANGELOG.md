@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [3.0.2](https://github.com/jpinz/moodist/compare/3.0.1...3.0.2) (2026-09-09)
+
+
+### 🐛 Bug Fixes
+
+* bypass PWA cache in Home Assistant ingress ([7f288fb](https://github.com/jpinz/moodist/commit/7f288fb548cfe3b869cca849d698869c48f663fd))
+
 ### [3.0.1](https://github.com/jpinz/moodist/compare/3.0.0...3.0.1) (2026-09-09)
 
 
