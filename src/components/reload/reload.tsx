@@ -7,5 +7,12 @@ export function Reload() {
 
   useEffect(() => setIsBrowser(true), []);
 
+  if (
+    isBrowser &&
+    window.location.pathname.startsWith('/api/hassio_ingress/')
+  ) {
+    return null;
+  }
+
   return isBrowser ? <ReloadModal /> : null;
 }
