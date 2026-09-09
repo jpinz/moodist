@@ -1,5 +1,5 @@
 name: Moodist
-version: 3.0.0
+version: 3.0.1
 slug: moodist
 description: Layer ambient sounds and play them in your browser or on Home Assistant speakers.
 url: https://github.com/jpinz/moodist

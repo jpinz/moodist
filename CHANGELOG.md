@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [3.0.1](https://github.com/jpinz/moodist/compare/3.0.0...3.0.1) (2026-09-09)
+
+
+### 🐛 Bug Fixes
+
+* load audio through Home Assistant ingress ([8460328](https://github.com/jpinz/moodist/commit/84603286321a1dd8b4fe8ca21d1e28dd38f9172e))
+
 ## [3.0.0](https://github.com/remvze/moodist/compare/v2.6.1...v3.0.0) (2026-09-06)
 
 
