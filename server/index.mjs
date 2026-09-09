@@ -361,7 +361,8 @@ function staticFile(request, response) {
       .replace(
         /(href|src|component-url|renderer-url)="\/(?!\/)/g,
         `$1="${ingressPath}/`,
-      );
+      )
+      .replace('<head>', `<head><base href="${ingressPath}/">`);
     return response.end(html);
   }
 
