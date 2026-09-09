@@ -1,4 +1,5 @@
 import { useEffect, useMemo } from 'react';
+import { v4 as uuid } from 'uuid';
 
 import { sounds as soundCategories } from '@/data/sounds';
 import { useOutputStore } from '@/stores/output';
@@ -10,7 +11,7 @@ const SESSION_KEY = 'moodist-output-session';
 function getSessionId() {
   let id = sessionStorage.getItem(SESSION_KEY);
   if (!id) {
-    id = crypto.randomUUID();
+    id = uuid({ random: crypto.getRandomValues(new Uint8Array(16)) });
     sessionStorage.setItem(SESSION_KEY, id);
   }
   return id;
